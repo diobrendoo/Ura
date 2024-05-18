@@ -9,8 +9,8 @@ const handler = async (m, {args, usedPrefix, command}) => {
   const _translate = JSON.parse(fs.readFileSync(`./language/${idioma}.json`))
   const tradutor = _translate.plugins.descargas_gitclone
 
-  if (!args[0]) throw `هذا الامر مخصص لتحميل جميع ملفات المشروع على جيتهاب/n/n*مثال* _${usedPrefix + command} https://github.com/BrunoSobrino/TheMystic-Bot-MD_`;
-  if (!regex.test(args[0])) throw tradutor.texto2;
+  if (!args[0]) throw `هذا الامر مخصص لتحميل جميع ملفات المشروع على جيتهاب\n\n*مثال* _${usedPrefix + command} https://github.com/BrunoSobrino/TheMystic-Bot-MD_`;
+  if (!regex.test(args[0])) `يرجى الانتظار`;
   let [_, user, repo] = args[0].match(regex) || [];
   repo = repo.replace(/.git$/, '');
   const url = `https://api.github.com/repos/${user}/${repo}/zipball`;
