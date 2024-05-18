@@ -1769,7 +1769,7 @@ global.dfail = (type, m, conn) => {
       restrict: '*⧼⬪│ ☽➣ تم الغاء الأمر من قبل المطور!👑☾ │⬪⧽*',
   }[type];
   const aa = { quoted: m, userJid: conn.user.jid };
-  const prep = generateWAMessageFromContent(m.chat, { extendedTextMessage: { text: msg, contextInfo: { externalAdReply: { title:`تنبيه`, body: ``, thumbnail: imagen1, sourceUrl: `` } } } }, aa);
+  const prep = generateWAMessageFromContent(m.chat, { extendedTextMessage: { text: msg, contextInfo: { externalAdReply: { title:`تنبيه`, body: `𝑀𝐴𝐾𝐼𝑀𝐴 𝐵𝛩𝑇`, thumbnail: imagen1, sourceUrl: `https://chat.whatsapp.com/IVJKhm24AFoGlgArjdlbzf` } } } }, aa);
   if (msg) return conn.relayMessage(m.chat, prep.message, { messageId: prep.key.id });
 };
 
