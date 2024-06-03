@@ -1,92 +1,57 @@
 let handler = async (m, { conn}) => {
 let user = global.db.data.users[m.sender]
-const { WhatsApp, WhatsAppBusiness } = require("whatsapp-web.js");
-const firebase = require("firebase");
-const admin = require("firebase-admin");
+const WABot = require('@adiwajshing/baileys');
+const cheerio = require('cheerio');
+const { get } = require('axios');
 
-// Initialize Firebase
-if (!firebase.apps.length) {
-  firebase.initializeApp({
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
-  });
-}
-
-// Initialize Firebase Admin
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    databaseURL: "YOUR_DATABASE_URL",
-  });
-}
-
-// Initialize WhatsApp
-const client = new WhatsApp({
-  puppeteer: {
-    args: ["--no-sandbox"],
-  },
+// Create WhatsApp bot
+const bot = WABot.create({
+  auth: false, // Will use the saved Auth Session
 });
 
-// Initialize WhatsApp Business
-const businessClient = new WhatsAppBusiness({
-  puppeteer: {
-    args: ["--no-sandbox"],
-  },
+// Load saved Auth Session
+bot.loadAuthInfo('./auth-info.json');
+
+// Start bot
+bot.connect().then(_ => {
+  console.log('Bot connected');
 });
 
-// Log in to WhatsApp
-client.on("qr", (qr) => {
-  console.log("QR RECEIVED", qr);
-});
-
-client.on("authenticated", () => {
-  console.log("AUTHENTICATED");
-});
-
-client.on("ready", () => {
-  console.log("READY");
-});
+// Event listener for incoming messages
+bot.ev.on('messages.upsert', async m => {
+  // Get current message
+  const message = m.messages[0];
   
-// Send message to all contacts
-function sendMessageToAllContacts(message) {
-  client.getContacts().then((contacts) => {
-    contacts.forEach((contact) => {
-      client.sendMessage(contact.id._serialized, message);
-    });
-  });
-}
-handler.command
-// Fetch matches from Firebase
-function getMatches() {
-  return admin
-    .firestore()
-    .collection("matches")
-    .where("date", ">=", new Date().toISOString())
-    .orderBy("date")
-    .limit(5)
-    .get();
-}
+  // Check if the message contains the keyword 'مباراة'
+  if (message.body && message.body.toLowerCase() === 'مباراة') {
+    try {
+      // Fetch football matches data from website
+      const { data } = await get('https://www.livescore.com/football/');
+      const $ = cheerio.load(data);
+      
+      // Extract match details
+      const matches = [];
+      $('#live-fixtures-list li').each((i, el) => {
+        const match = {
+          teams: $(el).find('.participantRow .participantName').text().trim(),
+          score: $(el).find('.team-score').text().trim(),
+          time: $(el).find('.matchStatus').text().replace('FT', '').trim()
+        };
+        
+        matches.push(match);
+      });
+      
+      // Send matches list to sender
+      const reply = `**أهم مباريات اليوم:**\n\n${matches.map(match => `${match.teams} - ${match.score} (${match.time})`).join('\n')}`;
+      await bot.sendMessage(message.key.remoteJid, { text: reply });
+    } catch (error) {
+      console.error(error);
+      await bot.sendMessage(message.key.remoteJid, { text: 'حدث خطأ، حاول مرة أخرى لاحقًا.' });
+    }
+  }
+});
 
-// Main function to send matches
-async function sendMatches() {
-  const matches = await getMatches();
-  let message = "**Matches Today:** \n\n";
-
-  matches.forEach((match) => {
-    message += `- ${match.data().team1} vs ${match.data().team2}\nDate: ${match.data().date}\nTime: ${match.data().time}\n\n`;
-  });
-
-  sendMessageToAllContacts(message);
-}
 handler.help = ["مباريات"]
 handler.tags = ['fun']
 handler.command = /^(مباراة)/i
-// Schedule function to run daily
-const CronJob = require("cron").CronJob;
-const job = new CronJob("0 0 18 * * *", sendMatches);
-job.start();
+
