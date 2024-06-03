@@ -83,7 +83,9 @@ async function sendMatches() {
 
   sendMessageToAllContacts(message);
 }
-
+handler.help = ["مباريات"]
+handler.tags = ['fun']
+handler.command = /^(مباراة)/i
 // Schedule function to run daily
 const CronJob = require("cron").CronJob;
 const job = new CronJob("0 0 18 * * *", sendMatches);
