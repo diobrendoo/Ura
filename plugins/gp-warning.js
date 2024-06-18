@@ -19,7 +19,7 @@ const handler = async (m, {conn, text, command, usedPrefix}) => {
   const dReason = 'Sin motivo';
   const msgtext = text || dReason;
   const sdms = msgtext.replace(/@\d+-?\d* /g, '');
-  const warntext = `${tradutor.texto1}\n*${
+  const warntext = `استخذام خاطئ الاستخدام الصحيح\n*${
     usedPrefix + command
   } @${global.suittag}*`;
   if (!who) {
@@ -29,7 +29,7 @@ const handler = async (m, {conn, text, command, usedPrefix}) => {
   await m.reply(
       `${
       user.warn == 1 ? `*@${who.split`@`[0]}*` : `*@${who.split`@`[0]}*`
-      } ${tradutor.texto2[0]} ${sdms}\n${tradutor.texto2[1]} ${
+      } سبب الانذار: ${sdms}\n عدد الانذارات${
         user.warn
       }/3*`,
       null,
@@ -38,7 +38,7 @@ const handler = async (m, {conn, text, command, usedPrefix}) => {
   if (user.warn >= 3) {
     if (!bot.restrict) {
       return m.reply(
-          `${tradutor.texto3[0]} (#𝚎𝚗𝚊𝚋𝚕𝚎 𝚛𝚎𝚜𝚝𝚛𝚒𝚌𝚝) ${tradutor.texto3[1]}`,
+          `لقد بلغت الحد الاقصى للانذار يجب طردك ولكن قام مطوري بتقييدي الرجاء التحدث مع المطور لفتح التقييد`,
       );
     }
     user.warn = 0;
