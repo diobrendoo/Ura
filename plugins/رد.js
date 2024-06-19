@@ -3,7 +3,7 @@ let handler = async (m, { conn }) => {
     let name = conn.getName(m.sender);
     let taguser = '@' + m.sender.split("@s.whatsapp.net")[0];
 
-    conn.sendFile(m.chat, 'https://telegra.ph/file/b574a4b50331200691bfa.jpg', 'sticker', m);
+    conn.sendFile(m.chat, 'https://file.io/L43C0MXKe8gs', 'sticker', m);
 };
 
 handler.customPrefix = /^ماكيما$/i;
